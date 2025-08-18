@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spin the Wheel!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+    ></script>
+  </head>
+
+  <body>
+    <div class="app-container">
+      <button id="fullscreenBtn" title="Toggle Fullscreen">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"
+          />
+        </svg>
+      </button>
+
+      <div id="logo-container">
+        <img src="Pictures/Paragon_Logo_Dark_Blue.png" alt="Paragon Logo" />
+      </div>
+
+      <div id="wheel-container">
+        <div class="wheel-pointer"></div>
+        <canvas id="spinWheelCanvas"></canvas>
+      </div>
+
+      <div id="controls-container">
+        <button id="spinButton">Spin the Wheel!</button>
+        <div id="messageBox">SPIN ME TO WIN!</div>
+      </div>
+    </div>
+
+    <div id="formContainer">
+      <div class="form-box">
+        <form id="userDetailsForm">
+          <h2>Enter Your Details to Play</h2>
+          <label for="name">Name</label>
+          <input type="text" id="name" required />
+          <label for="email">Email Address</label>
+          <input type="email" id="email" required />
+        </form>
+      </div>
+    </div>
+
+    <div id="resultModal" class="hidden">
+      <div class="modal-overlay"></div>
+      <div id="modalContent">
+        <h2 id="modalResultText">WIN!</h2>
+        <button id="playAgainBtn">Play Again</button>
+      </div>
+    </div>
+
+    <audio
+      id="spinningSound"
+      src="sounds/spinning-sound.mp3"
+      preload="auto"
+    ></audio>
+    <audio id="winSound" src="sounds/win-sound.mp3" preload="auto"></audio>
+    <audio id="loseSound" src="sounds/lose-sound.mp3" preload="auto"></audio>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
