@@ -137,7 +137,7 @@ canvas {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   pointer-events: auto;
   width: 100%;
-  max-width: 300px;
+  max-width: 280px;
 }
 #userDetailsForm {
   display: flex;

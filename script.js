@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ctx = canvas.getContext('2d');
   const spinButton = document.getElementById('spinButton');
   const messageBox = document.getElementById('messageBox');
-  const fullscreenBtn = document.getElementById('fullscreenBtn'); // Re-added this
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
   const formContainer = document.getElementById('formContainer');
   const resetButton = document.getElementById('resetButton');
 
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const playAgainBtn = document.getElementById('playAgainBtn');
   const spinningSound = document.getElementById('spinningSound');
   const winSound = document.getElementById('winSound');
-  const loseSound = document.getElementById('loseSound');
+  const loseSound = document.getElementById('loseSound'); // Get lose sound element
 
   // Form input references
   const nameInput = document.getElementById('name');
@@ -212,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
           modalResultText.textContent = resultText;
           resultModal.classList.remove('hidden');
           setTimeout(() => modalContent.classList.add('modal-visible'), 50);
+
           if (resultText === 'WIN' || winningSegment.isStarPrize) {
             winSound.play();
             modalContent.classList.add('pulsing');
@@ -231,9 +232,11 @@ document.addEventListener('DOMContentLoaded', () => {
               scalar: 0.7,
             });
           }
+
           if (resultText === 'LOSE') {
             loseSound.play();
           }
+
           if (winningSegment.isStarPrize) {
             dailyCounters.starPrizeWon = true;
             localStorage.setItem(
@@ -257,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // --- Fullscreen Button Logic Re-added ---
   const fullscreenBtnLogic = () => {
     const elem = document.documentElement;
     function openFullscreen() {
@@ -320,9 +322,10 @@ document.addEventListener('DOMContentLoaded', () => {
   nameInput.addEventListener('input', checkFormValidity);
   emailInput.addEventListener('input', checkFormValidity);
   spinButton.addEventListener('click', handleSpin);
-  fullscreenBtnLogic(); // Re-added this call
+  fullscreenBtnLogic();
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
+
   if (resetButton) {
     resetButton.addEventListener('click', () => {
       localStorage.removeItem('dailyCounters');
