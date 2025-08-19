@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const playAgainBtn = document.getElementById('playAgainBtn');
   const spinningSound = document.getElementById('spinningSound');
   const winSound = document.getElementById('winSound');
-  const loseSound = document.getElementById('loseSound'); // Get lose sound element
+  const loseSound = document.getElementById('loseSound');
 
   // Form input references
   const nameInput = document.getElementById('name');
@@ -54,15 +54,35 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('dailyCounters', JSON.stringify(dailyCounters));
   }
 
+  // --- UPDATED sendEmail FUNCTION ---
   const sendEmail = (result) => {
-    const serviceID = 'service_k14halo';
-    const templateID = 'template_6blt3s7';
+    const serviceID = 'service_kyhidik';
+    const templateID = 'template_6blt3s7'; // Your template ID
+    let emailBody = '';
+    let emailSubject = 'Spin Wheel Result';
+    const winnerName = userDetails.name;
+
+    // Build the email body and subject based on the result
+    switch (result) {
+      case 'WIN':
+        emailSubject = `Congratulations, ${winnerName}! You're a Winner!`;
+        emailBody = `Hi ${winnerName},\n\nGreat news! You spun the wheel and won!\n\nTo claim your prize, please show this email to a staff member at the Paragon booth.\n\nThanks for playing!`;
+        break;
+      case 'O2 TICKETS!':
+        emailSubject = `HUGE NEWS! You've Won O2 Tickets, ${winnerName}!`;
+        emailBody = `Hi ${winnerName},\n\nIncredible! You've won the grand prize: O2 TICKETS!\n\nTo claim your tickets, please come back to the Paragon booth immediately and show this email to our staff.\n\nCongratulations!`;
+        break;
+      case 'LOSE':
+        emailSubject = `Thanks for playing, ${winnerName}!`;
+        emailBody = `Hi ${winnerName},\n\nThank you for taking a spin on our wheel today!\n\nUnfortunately, it wasn't a winning spin this time, but we really appreciate you participating.\n\nBetter luck next time!`;
+        break;
+    }
 
     const templateParams = {
-      name: userDetails.name,
+      name: winnerName,
       email: userDetails.email,
-      message: result,
-      title: 'Spin Wheel Result',
+      title: emailSubject,
+      email_body: emailBody, // New simplified variable
     };
 
     emailjs
@@ -79,11 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const duration = 8 * 1000;
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
     }
-
     const interval = setInterval(function () {
       const timeLeft = animationEnd - Date.now();
       if (timeLeft <= 0) {
@@ -117,9 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { text: 'LOSE', color: '#e51937' },
     { text: 'WIN', color: '#006492' },
   ];
-
   segments.splice(4, 0, starPrize);
-
   const numSegments = segments.length;
   const arcSize = (2 * Math.PI) / numSegments;
   let totalRotation = 0;
@@ -212,7 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
           modalResultText.textContent = resultText;
           resultModal.classList.remove('hidden');
           setTimeout(() => modalContent.classList.add('modal-visible'), 50);
-
           if (resultText === 'WIN' || winningSegment.isStarPrize) {
             winSound.play();
             modalContent.classList.add('pulsing');
@@ -232,11 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
               scalar: 0.7,
             });
           }
-
           if (resultText === 'LOSE') {
             loseSound.play();
           }
-
           if (winningSegment.isStarPrize) {
             dailyCounters.starPrizeWon = true;
             localStorage.setItem(
@@ -263,26 +276,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const fullscreenBtnLogic = () => {
     const elem = document.documentElement;
     function openFullscreen() {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) {
-        /* Safari */
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        /* IE11 */
-        elem.msRequestFullscreen();
-      }
+      if (elem.requestFullscreen) elem.requestFullscreen();
+      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
     }
     function closeFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        /* Safari */
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) {
-        /* IE11 */
-        document.msExitFullscreen();
-      }
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
     }
     function toggleFullScreen() {
       if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -317,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
     messageBox.removeAttribute('style');
   });
 
-  // --- Event Listeners ---
   spinButton.disabled = true;
   nameInput.addEventListener('input', checkFormValidity);
   emailInput.addEventListener('input', checkFormValidity);
