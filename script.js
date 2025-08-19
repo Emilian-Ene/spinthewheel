@@ -61,20 +61,26 @@ document.addEventListener('DOMContentLoaded', () => {
     let emailBody = '';
     let emailSubject = 'Spin Wheel Result';
     const winnerName = userDetails.name;
+    const sign1 = 'E: marketing@paragon-cc.co.uk';
+    const sign2 = 'W: paragon.world/en-gb';
+    const sign3 = 'A: Park House, 16-18 Finsbury Circus, London, EC2M 7EB';
+    const sign4 = 'Marketing Team,';
 
     // Build the email body and subject based on the result
     switch (result) {
       case 'WIN':
         emailSubject = `Congratulations, ${winnerName}! You're a Winner!`;
-        emailBody = `Hi ${winnerName},\n\nGreat news! You spun the wheel and won!\n\nTo claim your prize, please show this email to a staff member at the Paragon booth.\n\nThanks for playing!`;
+        emailBody = `Hi ${winnerName},\n\nGreat news! You spun the wheel and won!\n\nTo claim your prize, please show this email to a Paragon staff member.\n\nThanks for playing!\n\n\n${sign4}\n\n${sign1}\n${sign2}\n${sign3}`;
         break;
       case 'O2 TICKETS!':
         emailSubject = `HUGE NEWS! You've Won O2 Tickets, ${winnerName}!`;
-        emailBody = `Hi ${winnerName},\n\nIncredible! You've won the grand prize: O2 TICKETS!\n\nTo claim your tickets, please come back to the Paragon booth immediately and show this email to our staff.\n\nCongratulations!`;
+        emailBody = `Hi ${winnerName},\n\nIncredible! You've won the grand prize: O2 TICKETS!\n\nTo claim your tickets, please choose one of the following options:\n
+Visit us in person: Come to the Paragon booth and show this email to a member of our team.
+Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign4}\n\n${sign1}\n${sign2}\n${sign3}`;
         break;
       case 'LOSE':
         emailSubject = `Thanks for playing, ${winnerName}!`;
-        emailBody = `Hi ${winnerName},\n\nThank you for taking a spin on our wheel today!\n\nUnfortunately, it wasn't a winning spin this time, but we really appreciate you participating.\n\nBetter luck next time!`;
+        emailBody = `Hi ${winnerName},\n\nThank you for taking a spin on our wheel today!\n\nUnfortunately, it wasn't a winning spin this time, but we really appreciate you participating.\n\nBetter luck next time!\n\n\n${sign4}\n\n${sign1}\n${sign2}\n${sign3}`;
         break;
     }
 
