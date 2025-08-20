@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- UPDATED sendEmail FUNCTION ---
   const sendEmail = (result) => {
-    const serviceID = 'service_kyhidik';
+    const serviceID = 'service_2gpnosc';
     const templateID = 'template_6blt3s7'; // Your template ID
     let emailBody = '';
     let emailSubject = 'Spin Wheel Result';
