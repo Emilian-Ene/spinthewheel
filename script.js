@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 
   // --- Constants and Configuration ---
-  const STAR_PRIZE_SPIN_LIMIT = 20;
+  const STAR_PRIZE_SPIN_LIMIT = 3;
 
   // --- Element References ---
   const canvas = document.getElementById('spinWheelCanvas');
