@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   })();
 
-  // Element references
+  // --- Constants and Configuration ---
+  const STAR_PRIZE_SPIN_LIMIT = 20;
+
+  // --- Element References ---
   const canvas = document.getElementById('spinWheelCanvas');
   const ctx = canvas.getContext('2d');
   const spinButton = document.getElementById('spinButton');
@@ -15,8 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const fullscreenBtn = document.getElementById('fullscreenBtn');
   const formContainer = document.getElementById('formContainer');
   const resetButton = document.getElementById('resetButton');
-
-  // Modal and sound effect references
   const resultModal = document.getElementById('resultModal');
   const modalContent = document.getElementById('modalContent');
   const modalResultText = document.getElementById('modalResultText');
@@ -24,83 +25,93 @@ document.addEventListener('DOMContentLoaded', () => {
   const spinningSound = document.getElementById('spinningSound');
   const winSound = document.getElementById('winSound');
   const loseSound = document.getElementById('loseSound');
-
-  // Form input references
   const nameInput = document.getElementById('name');
   const emailInput = document.getElementById('email');
   let userDetails = {};
 
-  // Daily Prize & Spin Counter Logic
-  const starPrize = {
-    text: 'O2 TICKETS!',
-    color: '#FFD700',
-    isStarPrize: true,
-  };
-
+  // --- Daily Prize & Spin Counter Logic ---
   const getTodayDateString = () => {
     const today = new Date();
     return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
   };
-
   const todayStr = getTodayDateString();
   let dailyCounters = JSON.parse(localStorage.getItem('dailyCounters'));
-
   if (!dailyCounters || dailyCounters.date !== todayStr) {
-    dailyCounters = {
-      date: todayStr,
-      spinCount: 0,
-      starPrizeWon: false,
-    };
+    dailyCounters = { date: todayStr, spinCount: 0, starPrizeWon: false };
     localStorage.setItem('dailyCounters', JSON.stringify(dailyCounters));
   }
 
-  // --- UPDATED sendEmail FUNCTION ---
-  const sendEmail = (result) => {
-    const serviceID = 'service_2gpnosc';
-    const templateID = 'template_6blt3s7'; // Your template ID
-    let emailBody = '';
-    let emailSubject = 'Spin Wheel Result';
-    const winnerName = userDetails.name;
-    const sign1 = 'E: marketing@paragon-cc.co.uk';
-    const sign2 = 'W: paragon.world/en-gb';
-    const sign3 = 'A: Park House, 16-18 Finsbury Circus, London, EC2M 7EB';
-    const sign4 = 'Marketing Team,';
+  // --- Email Logic ---
+  const sendEmail = (segment) => {
+    if (segment.type === 'retry') {
+      return; // Do not send an email for "Retry" spins
+    }
 
-    // Build the email body and subject based on the result
-    switch (result) {
-      case 'WIN':
-        emailSubject = `Congratulations, ${winnerName}! You're a Winner!`;
-        emailBody = `Hi ${winnerName},\n\nGreat news! You spun the wheel and won!\n\nTo claim your prize, please show this email to a Paragon staff member.\n\nThanks for playing!\n\n\n${sign4}\n\n${sign1}\n${sign2}\n${sign3}`;
-        break;
-      case 'O2 TICKETS!':
-        emailSubject = `HUGE NEWS! You've Won O2 Tickets, ${winnerName}!`;
-        emailBody = `Hi ${winnerName},\n\nIncredible! You've won the grand prize: O2 TICKETS!\n\nTo claim your tickets, please choose one of the following options:\n
-Visit us in person: Come to the Paragon booth and show this email to a member of our team.
-Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign4}\n\n${sign1}\n${sign2}\n${sign3}`;
-        break;
-      case 'LOSE':
-        emailSubject = `Thanks for playing, ${winnerName}!`;
-        emailBody = `Hi ${winnerName},\n\nThank you for taking a spin on our wheel today!\n\nUnfortunately, it wasn't a winning spin this time, but we really appreciate you participating.\n\nBetter luck next time!\n\n\n${sign4}\n\n${sign1}\n${sign2}\n${sign3}`;
-        break;
+    const serviceID = 'service_2gpnosc';
+    const templateID = 'template_6blt3s7';
+    const winnerName = userDetails.name;
+
+    let emailSubject = '';
+    let emailBody = '';
+
+    const paragonIntro = `We're Paragon - we deliver end-to-end creative, production and fulfilment solutions, powered by in-house manufacturing, proprietary technology and AI innovation.<br><br>With global reach, local delivery and sustainability built in, we help ambitious brands deliver marketing that performs, scales, and lasts.`;
+    const paragonTeamSignature = `The Paragon Team`;
+
+    if (segment.isStarPrize) {
+      // Logic for the O2 Golden Ticket Winner
+      emailSubject = `You’re our Golden Ticket Winner!`;
+
+      const imageUrl = 'https://i.imgur.com/J56jFsa.png';
+
+      emailBody = `
+        <div style="font-family: sans-serif; line-height: 1.6;">
+          <p>Hi ${winnerName},</p>
+          <p><strong>Congratulations – you’re our Golden Ticket Winner!</strong></p>
+          <p>You’ve won two tickets to a show of your choice at The O₂ in London.</p>
+          <p>One of our team will be in touch shortly to arrange your booking and help you choose your perfect night out.</p>
+          <p><img src="${imageUrl}" alt="Golden Ticket" style="max-width: 300px; height: auto;"></p>
+          <p>While you wait, here’s a little about us: ${paragonIntro}</p>
+          <p>Discover how we can help you: <a href="https://uk.paragon.world/contact-us" target="_blank">Speak to our team</a></p>
+          <p>Enjoy the show!</p>
+          <p>${paragonTeamSignature}</p>
+        </div>`;
+    } else {
+      // Logic for all other winners and consolation prizes
+      emailSubject = `Thanks for playing – here’s your result!`;
+      let dynamicResult = '';
+
+      if (segment.type === 'winner') {
+        dynamicResult = `Winner – Claim your prize - ${segment.text}`;
+      } else if (segment.type === 'lose') {
+        dynamicResult = `Consolation Prize – Hard luck this time – claim your consolation prize - ${segment.text}`;
+      }
+
+      emailBody = `
+        <div style="font-family: sans-serif; line-height: 1.6;">
+          <p>Hi ${winnerName},</p>
+          <p>Thanks for stopping by the Paragon stand at Technology for Marketing and playing our Spin the Wheel game.</p>
+          <p><strong>Your result:</strong> ${dynamicResult}</p>
+          <p>${paragonIntro}</p>
+          <p>Want to find out how? <a href="https://uk.paragon.world/contact-us" target="_blank">Speak to our team</a>.</p>
+          <p>Thanks again for playing – enjoy your prize!</p>
+          <p>${paragonTeamSignature}</p>
+        </div>`;
     }
 
     const templateParams = {
       name: winnerName,
       email: userDetails.email,
       title: emailSubject,
-      email_body: emailBody, // New simplified variable
+      email_body: emailBody,
     };
 
     emailjs
       .send(serviceID, templateID, templateParams)
-      .then((response) => {
-        console.log('SUCCESS! Email sent.', response.status, response.text);
-      })
-      .catch((err) => {
-        console.error('FAILED to send email.', err);
-      });
+      .then((res) => console.log('SUCCESS! Email sent.', res.status))
+      .catch((err) => console.error('FAILED to send email.', err));
   };
 
+  // --- Confetti / Fireworks Function ---
   const fireFireworks = () => {
     const duration = 8 * 1000;
     const animationEnd = Date.now() + duration;
@@ -129,19 +140,28 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
     }, 200);
   };
 
+  // --- Wheel Setup ---
+  const starPrize = {
+    text: 'O2 Tickets',
+    displayText: 'O2 TICKETS!',
+    type: 'winner',
+    color: '#FFD700',
+    isStarPrize: true,
+  };
   let segments = [
-    { text: 'RETRY', color: '#e51937' },
-    { text: 'WIN', color: '#006492' },
-    { text: 'LOSE', color: '#e51937' },
-    { text: 'WIN', color: '#006492' },
-    { text: 'LOSE', color: '#e51937' },
-    { text: 'RETRY', color: '#006492' },
-    { text: 'LOSE', color: '#e51937' },
-    { text: 'WIN', color: '#006492' },
-    { text: 'LOSE', color: '#e51937' },
-    { text: 'WIN', color: '#006492' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
+    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: '#006492' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
+    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: '#006492' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
+    { text: 'Retry', displayText: 'RETRY', type: 'retry', color: '#006492' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
+    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: '#006492' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
+    { text: 'Retry', displayText: 'RETRY', type: 'retry', color: '#006492' },
   ];
   segments.splice(4, 0, starPrize);
+
   const numSegments = segments.length;
   const arcSize = (2 * Math.PI) / numSegments;
   let totalRotation = 0;
@@ -170,18 +190,16 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
       ctx.shadowOffsetX = 2;
       ctx.shadowOffsetY = 2;
       ctx.shadowBlur = 3;
-      ctx.fillText(segment.text, radius * 0.85, radius * 0.03);
+      ctx.fillText(segment.displayText, radius * 0.85, radius * 0.03);
       ctx.restore();
     });
   };
 
+  // --- Main Spin Logic ---
   const handleSpin = () => {
     if (isSpinning) return;
     if (!formContainer.classList.contains('hidden')) {
-      userDetails = {
-        name: nameInput.value,
-        email: emailInput.value,
-      };
+      userDetails = { name: nameInput.value, email: emailInput.value };
       formContainer.classList.add('hidden');
     }
     dailyCounters.spinCount += 1;
@@ -193,11 +211,14 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
     messageBox.textContent = 'Spinning... Good luck!';
     spinningSound.loop = true;
     spinningSound.play();
+
     let winningSegmentIndex;
     const starPrizeIndex = segments.findIndex((s) => s.isStarPrize);
     const canWinStarPrize =
-      !dailyCounters.starPrizeWon && dailyCounters.spinCount <= 20;
-    if (canWinStarPrize && dailyCounters.spinCount === 20) {
+      !dailyCounters.starPrizeWon &&
+      dailyCounters.spinCount <= STAR_PRIZE_SPIN_LIMIT;
+
+    if (canWinStarPrize && dailyCounters.spinCount === STAR_PRIZE_SPIN_LIMIT) {
       winningSegmentIndex = starPrizeIndex;
     } else {
       winningSegmentIndex = Math.floor(Math.random() * numSegments);
@@ -210,6 +231,7 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
       }
     }
     const winningSegment = segments[winningSegmentIndex];
+
     const targetCenterAngle = winningSegmentIndex * arcSize + arcSize / 2;
     const targetOrientation = -targetCenterAngle;
     const currentOrientation = totalRotation % (2 * Math.PI);
@@ -217,24 +239,35 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
       (targetOrientation - currentOrientation + 2 * Math.PI) % (2 * Math.PI);
     const randomFullSpins = Math.floor(Math.random() * 6) + 5;
     totalRotation += rotationNeeded + randomFullSpins * 2 * Math.PI;
+
     canvas.style.transform = `rotate(${totalRotation}rad)`;
     canvas.addEventListener(
       'transitionend',
       () => {
         spinningSound.pause();
         spinningSound.currentTime = 0;
-        const resultText = winningSegment.text;
-        if (resultText === 'RETRY') {
+
+        if (winningSegment.type === 'retry') {
           messageBox.textContent = 'RETRY! Spin Again!';
           isSpinning = false;
           spinButton.disabled = false;
         } else {
-          sendEmail(resultText);
+          sendEmail(winningSegment);
           isSpinning = false;
-          modalResultText.textContent = resultText;
+
+          if (winningSegment.isStarPrize) {
+            modalResultText.textContent = 'GOLDEN TICKET WINNER!';
+          } else if (winningSegment.type === 'winner') {
+            modalResultText.textContent = `YOU WON A ${winningSegment.text.toUpperCase()}!`;
+          } else {
+            // 'lose'
+            modalResultText.textContent = `Consolation Prize: ${winningSegment.text}`;
+          }
+
           resultModal.classList.remove('hidden');
           setTimeout(() => modalContent.classList.add('modal-visible'), 50);
-          if (resultText === 'WIN' || winningSegment.isStarPrize) {
+
+          if (winningSegment.type === 'winner') {
             winSound.play();
             modalContent.classList.add('pulsing');
             fireFireworks();
@@ -252,10 +285,10 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
               origin: { x: 1 },
               scalar: 0.7,
             });
-          }
-          if (resultText === 'LOSE') {
+          } else if (winningSegment.type === 'lose') {
             loseSound.play();
           }
+
           if (winningSegment.isStarPrize) {
             dailyCounters.starPrizeWon = true;
             localStorage.setItem(
@@ -269,14 +302,11 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
     );
   };
 
+  // --- Helper & Event Listener Functions ---
   const checkFormValidity = () => {
     const isNameValid = nameInput.value.trim() !== '';
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
-    if (isNameValid && isEmailValid && !isSpinning) {
-      spinButton.disabled = false;
-    } else {
-      spinButton.disabled = true;
-    }
+    spinButton.disabled = !(isNameValid && isEmailValid && !isSpinning);
   };
 
   const fullscreenBtnLogic = () => {
@@ -291,14 +321,13 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
       else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       else if (document.msExitFullscreen) document.msExitFullscreen();
     }
-    function toggleFullScreen() {
+    fullscreenBtn.addEventListener('click', () => {
       if (!document.fullscreenElement && !document.webkitFullscreenElement) {
         openFullscreen();
       } else {
         closeFullscreen();
       }
-    }
-    fullscreenBtn.addEventListener('click', toggleFullScreen);
+    });
   };
 
   const resizeCanvas = () => {
@@ -309,8 +338,7 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
   };
 
   playAgainBtn.addEventListener('click', () => {
-    modalContent.classList.remove('modal-visible');
-    modalContent.classList.remove('pulsing');
+    modalContent.classList.remove('modal-visible', 'pulsing');
     setTimeout(() => {
       resultModal.classList.add('hidden');
     }, 300);
@@ -321,9 +349,17 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
     checkFormValidity();
     formContainer.classList.remove('hidden');
     messageBox.textContent = 'SPIN ME TO WIN!';
-    messageBox.removeAttribute('style');
   });
 
+  if (resetButton) {
+    resetButton.addEventListener('click', () => {
+      localStorage.removeItem('dailyCounters');
+      alert('Daily counters have been reset. The page will now reload.');
+      location.reload();
+    });
+  }
+
+  // --- Initial Setup ---
   spinButton.disabled = true;
   nameInput.addEventListener('input', checkFormValidity);
   emailInput.addEventListener('input', checkFormValidity);
@@ -331,11 +367,4 @@ Contact us by email: marketing@paragon-cc.co.uk.\n\nCongratulations!\n\n\n${sign
   fullscreenBtnLogic();
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
-
-  if (resetButton) {
-    resetButton.addEventListener('click', () => {
-      localStorage.removeItem('dailyCounters');
-      location.reload();
-    });
-  }
 });
