@@ -39,12 +39,12 @@
 
       <div id="controls-container">
         <button id="spinButton">Spin the Wheel!</button>
-        <div id="messageBox">SPIN ME TO WIN!</div>
+        <div id="messageBox" class="hidden">SPIN ME TO WIN!</div>
         <button id="resetButton">Reset Daily Count</button>
       </div>
     </div>
 
-    <div id="formContainer">
+    <div id="formContainer" class="hidden">
       <div class="form-box">
         <form id="userDetailsForm">
           <h2>Enter Your Details to Play</h2>
@@ -52,6 +52,76 @@
           <input type="text" id="name" required />
           <label for="email">Email Address</label>
           <input type="email" id="email" required />
+          <button type="submit" id="submitDetailsBtn">Continue</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="questionModal">
+      <div class="modal-overlay"></div>
+      <div class="question-box">
+        <form id="questionForm">
+          <h2>What's your biggest marketing challenge right now?</h2>
+          <div class="options-container">
+            <label
+              ><input
+                type="checkbox"
+                name="challenge"
+                value="Managing multichannel campaigns with consistency"
+              />
+              Managing multichannel campaigns with consistency</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="challenge"
+                value="Reducing costs and improving efficiency"
+              />
+              Reducing costs and improving efficiency</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="challenge"
+                value="Gaining better visibility and control"
+              />
+              Gaining better visibility and control</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="challenge"
+                value="Delivering carbon reductions while growing revenue"
+              />
+              Delivering carbon reductions while growing revenue</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="challenge"
+                value="Integrating technology and data effectively"
+              />
+              Integrating technology and data effectively</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="challenge"
+                value="Accessing expertise to manage complex procurement and distribution"
+              />
+              Accessing expertise to manage complex procurement and
+              distribution</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="challenge"
+                value="Getting expert support in specialist areas, on-demand"
+              />
+              Getting expert support in specialist areas, on-demand</label
+            >
+          </div>
+          <button type="submit" id="submitAnswerBtn">Continue</button>
         </form>
       </div>
     </div>

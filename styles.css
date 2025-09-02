@@ -12,7 +12,7 @@ body {
 
 /* --- Main Layout Containers --- */
 .app-container {
-  position: relative; /* Added for positioning context */
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -120,6 +120,20 @@ canvas {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
+#resetButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+#resetButton:hover {
+  background-color: #e2e8f0;
+}
+
 /* --- Form Overlay --- */
 #formContainer {
   position: fixed;
@@ -128,16 +142,16 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
 }
 .form-box {
   background: #fff;
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  pointer-events: auto;
   width: 100%;
   max-width: 260px;
+  display: flex;
+  flex-direction: column;
 }
 #userDetailsForm {
   display: flex;
@@ -199,6 +213,77 @@ canvas {
   opacity: 1;
 }
 
+/* --- Question Modal Styles --- */
+#questionModal {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question-box {
+  position: relative;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  z-index: 26;
+}
+
+#questionForm h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.options-container label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.options-container input[type='checkbox'] {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Buttons inside modals */
+#submitAnswerBtn,
+#submitDetailsBtn {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: #22c55e;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+#submitAnswerBtn:hover,
+#submitDetailsBtn:hover {
+  background: #16a34a;
+}
+
 /* --- Utility and Animation --- */
 .hidden {
   display: none !important;
@@ -222,7 +307,7 @@ canvas {
   animation: pulse 1.5s infinite;
 }
 
-/* --- NEW: Fullscreen Button Styles --- */
+/* --- Fullscreen Button Styles --- */
 #fullscreenBtn {
   position: absolute;
   top: 24px;
@@ -231,16 +316,17 @@ canvas {
   border: none;
   cursor: pointer;
   padding: 0;
-  z-index: 10;
+  /* KEY CHANGE: Increased z-index to be on top of all modals */
+  z-index: 35;
 }
 
 #fullscreenBtn svg {
   width: 28px;
   height: 28px;
-  fill: #a0aec0; /* Medium gray */
+  fill: #a0aec0;
   transition: fill 0.2s ease-in-out;
 }
 
 #fullscreenBtn:hover svg {
-  fill: #4f46e5; /* Purple */
+  fill: #4f46e5;
 }

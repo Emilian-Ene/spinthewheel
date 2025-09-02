@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 
   // --- Constants and Configuration ---
-  const STAR_PRIZE_SPIN_LIMIT = 3;
+  const STAR_PRIZE_SPIN_LIMIT = 20;
 
   // --- Element References ---
   const canvas = document.getElementById('spinWheelCanvas');
@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const messageBox = document.getElementById('messageBox');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
   const formContainer = document.getElementById('formContainer');
+  const userDetailsForm = document.getElementById('userDetailsForm');
   const resetButton = document.getElementById('resetButton');
   const resultModal = document.getElementById('resultModal');
   const modalContent = document.getElementById('modalContent');
@@ -27,13 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const loseSound = document.getElementById('loseSound');
   const nameInput = document.getElementById('name');
   const emailInput = document.getElementById('email');
+  const questionModal = document.getElementById('questionModal');
+  const questionForm = document.getElementById('questionForm');
+
   let userDetails = {};
+  let userChoice = '';
 
   // --- Daily Prize & Spin Counter Logic ---
-  const getTodayDateString = () => {
-    const today = new Date();
-    return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-  };
+  const getTodayDateString = () => new Date().toISOString().split('T')[0];
   const todayStr = getTodayDateString();
   let dailyCounters = JSON.parse(localStorage.getItem('dailyCounters'));
   if (!dailyCounters || dailyCounters.date !== todayStr) {
@@ -42,73 +44,53 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Email Logic ---
-  const sendEmail = (segment) => {
-    if (segment.type === 'retry') {
-      return; // Do not send an email for "Retry" spins
-    }
-
+  const sendPlayerEmail = (segment) => {
+    if (segment.type === 'retry') return;
     const serviceID = 'service_2gpnosc';
     const templateID = 'template_6blt3s7';
     const winnerName = userDetails.name;
-
     let emailSubject = '';
     let emailBody = '';
-
     const paragonIntro = `We're Paragon - we deliver end-to-end creative, production and fulfilment solutions, powered by in-house manufacturing, proprietary technology and AI innovation.<br><br>With global reach, local delivery and sustainability built in, we help ambitious brands deliver marketing that performs, scales, and lasts.`;
     const paragonTeamSignature = `The Paragon Team`;
-
     if (segment.isStarPrize) {
-      // Logic for the O2 Golden Ticket Winner
       emailSubject = `You’re our Golden Ticket Winner!`;
-
       const imageUrl = 'https://i.imgur.com/J56jFsa.png';
-
-      emailBody = `
-        <div style="font-family: sans-serif; line-height: 1.6;">
-          <p>Hi ${winnerName},</p>
-          <p><strong>Congratulations – you’re our Golden Ticket Winner!</strong></p>
-          <p>You’ve won two tickets to a show of your choice at The O₂ in London.</p>
-          <p>One of our team will be in touch shortly to arrange your booking and help you choose your perfect night out.</p>
-          <p><img src="${imageUrl}" alt="Golden Ticket" style="max-width: 300px; height: auto;"></p>
-          <p>While you wait, here’s a little about us: ${paragonIntro}</p>
-          <p>Discover how we can help you: <a href="https://uk.paragon.world/contact-us" target="_blank">Speak to our team</a></p>
-          <p>Enjoy the show!</p>
-          <p>${paragonTeamSignature}</p>
-        </div>`;
+      emailBody = `<div style="font-family: sans-serif; line-height: 1.6;"><p>Hi ${winnerName},</p><p><strong>Congratulations – you’re our Golden Ticket Winner!</strong></p><p>You’ve won two tickets to a show of your choice at The O₂ in London.</p><p>One of our team will be in touch shortly to arrange your booking and help you choose your perfect night out.</p><p><img src="${imageUrl}" alt="Golden Ticket" style="max-width: 300px; height: auto;"></p><p>While you wait, here’s a little about us: ${paragonIntro}</p><p>Discover how we can help you: <a href="https://uk.paragon.world/contact-us" target="_blank">Speak to our team</a></p><p>Enjoy the show!</p><p>${paragonTeamSignature}</p></div>`;
     } else {
-      // Logic for all other winners and consolation prizes
       emailSubject = `Thanks for playing – here’s your result!`;
       let dynamicResult = '';
-
       if (segment.type === 'winner') {
-        dynamicResult = `Winner – Claim your prize - ${segment.text}`;
+        dynamicResult = `Winner – Claim your prize  of a Paragon notebook - ${segment.text}`;
       } else if (segment.type === 'lose') {
-        dynamicResult = `Consolation Prize – Hard luck this time – claim your consolation prize - ${segment.text}`;
+        dynamicResult = `Consolation Prize – Hard luck this time – claim your consolation prize of a Paragon pen - ${segment.text}`;
       }
-
-      emailBody = `
-        <div style="font-family: sans-serif; line-height: 1.6;">
-          <p>Hi ${winnerName},</p>
-          <p>Thanks for stopping by the Paragon stand at Technology for Marketing and playing our Spin the Wheel game.</p>
-          <p><strong>Your result:</strong> ${dynamicResult}</p>
-          <p>${paragonIntro}</p>
-          <p>Want to find out how? <a href="https://uk.paragon.world/contact-us" target="_blank">Speak to our team</a>.</p>
-          <p>Thanks again for playing – enjoy your prize!</p>
-          <p>${paragonTeamSignature}</p>
-        </div>`;
+      emailBody = `<div style="font-family: sans-serif; line-height: 1.6;"><p>Hi ${winnerName},</p><p>Thanks for stopping by the Paragon stand at Technology for Marketing and playing our Spin The Wheel game.</p><p><strong>Your result:</strong> ${dynamicResult}</p><p>${paragonIntro}</p><p>Want to find out how? <a href="https://uk.paragon.world/contact-us" target="_blank">Speak to our team</a>.</p><p>Thanks again for playing – enjoy your prize!</p><p>${paragonTeamSignature}</p></div>`;
     }
-
     const templateParams = {
       name: winnerName,
       email: userDetails.email,
       title: emailSubject,
       email_body: emailBody,
     };
-
     emailjs
       .send(serviceID, templateID, templateParams)
-      .then((res) => console.log('SUCCESS! Email sent.', res.status))
-      .catch((err) => console.error('FAILED to send email.', err));
+      .then((res) => console.log('Player email sent.'))
+      .catch((err) => console.error('Player email failed.', err));
+  };
+
+  const sendAdminNotification = (choice) => {
+    const serviceID = 'service_2gpnosc';
+    const templateID = 'template_i04qaqr';
+    const templateParams = {
+      name: userDetails.name,
+      email: userDetails.email,
+      choice: choice.join('\n'),
+    };
+    emailjs
+      .send(serviceID, templateID, templateParams)
+      .then((res) => console.log('Admin notification sent.'))
+      .catch((err) => console.error('Admin notification failed.', err));
   };
 
   // --- Confetti / Fireworks Function ---
@@ -161,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { text: 'Retry', displayText: 'RETRY', type: 'retry', color: '#006492' },
   ];
   segments.splice(4, 0, starPrize);
-
   const numSegments = segments.length;
   const arcSize = (2 * Math.PI) / numSegments;
   let totalRotation = 0;
@@ -169,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const drawWheel = () => {
     const radius = canvas.width / 2;
+    if (radius <= 0) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const startAngleOffset = -Math.PI / 2;
     segments.forEach((segment, i) => {
@@ -198,16 +180,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Main Spin Logic ---
   const handleSpin = () => {
     if (isSpinning) return;
-    if (!formContainer.classList.contains('hidden')) {
-      userDetails = { name: nameInput.value, email: emailInput.value };
-      formContainer.classList.add('hidden');
-    }
     dailyCounters.spinCount += 1;
     localStorage.setItem('dailyCounters', JSON.stringify(dailyCounters));
-    nameInput.disabled = true;
-    emailInput.disabled = true;
     isSpinning = true;
     spinButton.disabled = true;
+    spinButton.classList.add('hidden');
+    messageBox.classList.remove('hidden');
     messageBox.textContent = 'Spinning... Good luck!';
     spinningSound.loop = true;
     spinningSound.play();
@@ -246,27 +224,23 @@ document.addEventListener('DOMContentLoaded', () => {
       () => {
         spinningSound.pause();
         spinningSound.currentTime = 0;
-
         if (winningSegment.type === 'retry') {
-          messageBox.textContent = 'RETRY! Spin Again!';
-          isSpinning = false;
+          messageBox.classList.add('hidden');
+          spinButton.classList.remove('hidden');
           spinButton.disabled = false;
-        } else {
-          sendEmail(winningSegment);
           isSpinning = false;
-
+        } else {
+          sendPlayerEmail(winningSegment);
+          isSpinning = false;
           if (winningSegment.isStarPrize) {
             modalResultText.textContent = 'GOLDEN TICKET WINNER!';
           } else if (winningSegment.type === 'winner') {
             modalResultText.textContent = `YOU WON A ${winningSegment.text.toUpperCase()}!`;
           } else {
-            // 'lose'
             modalResultText.textContent = `Consolation Prize: ${winningSegment.text}`;
           }
-
           resultModal.classList.remove('hidden');
           setTimeout(() => modalContent.classList.add('modal-visible'), 50);
-
           if (winningSegment.type === 'winner') {
             winSound.play();
             modalContent.classList.add('pulsing');
@@ -288,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (winningSegment.type === 'lose') {
             loseSound.play();
           }
-
           if (winningSegment.isStarPrize) {
             dailyCounters.starPrizeWon = true;
             localStorage.setItem(
@@ -303,12 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // --- Helper & Event Listener Functions ---
-  const checkFormValidity = () => {
-    const isNameValid = nameInput.value.trim() !== '';
-    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
-    spinButton.disabled = !(isNameValid && isEmailValid && !isSpinning);
-  };
-
   const fullscreenBtnLogic = () => {
     const elem = document.documentElement;
     function openFullscreen() {
@@ -337,18 +304,60 @@ document.addEventListener('DOMContentLoaded', () => {
     drawWheel();
   };
 
+  // LOGIC FOR QUESTION SUBMISSION
+  questionForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const selectedOptions = questionForm.querySelectorAll(
+      'input[name="challenge"]:checked'
+    );
+    if (selectedOptions.length > 0) {
+      const choices = Array.from(selectedOptions).map((option) => option.value);
+      userChoice = choices; // Store as an array
+      questionModal.classList.add('hidden');
+      formContainer.classList.remove('hidden');
+    } else {
+      alert('Please select at least one answer.');
+    }
+  });
+
+  // LOGIC FOR DETAILS FORM SUBMISSION
+  userDetailsForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const isNameValid = nameInput.value.trim() !== '';
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+    if (isNameValid && isEmailValid) {
+      userDetails = { name: nameInput.value, email: emailInput.value };
+      formContainer.classList.add('hidden');
+      spinButton.disabled = false;
+    } else {
+      alert('Please enter a valid name and email address.');
+    }
+  });
+
+  // LOGIC FOR FINAL SPIN BUTTON
+  spinButton.addEventListener('click', () => {
+    if (isSpinning || spinButton.disabled) return;
+    sendAdminNotification(userChoice);
+    handleSpin();
+  });
+
+  // LOGIC FOR PLAY AGAIN BUTTON
   playAgainBtn.addEventListener('click', () => {
     modalContent.classList.remove('modal-visible', 'pulsing');
     setTimeout(() => {
       resultModal.classList.add('hidden');
     }, 300);
+    const checkedBoxes = questionForm.querySelectorAll(
+      'input[name="challenge"]:checked'
+    );
+    checkedBoxes.forEach((checkbox) => (checkbox.checked = false));
     nameInput.value = '';
     emailInput.value = '';
-    nameInput.disabled = false;
-    emailInput.disabled = false;
-    checkFormValidity();
-    formContainer.classList.remove('hidden');
-    messageBox.textContent = 'SPIN ME TO WIN!';
+
+    questionModal.classList.remove('hidden');
+    messageBox.classList.add('hidden');
+    spinButton.classList.remove('hidden');
+    spinButton.disabled = true;
   });
 
   if (resetButton) {
@@ -361,10 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Initial Setup ---
   spinButton.disabled = true;
-  nameInput.addEventListener('input', checkFormValidity);
-  emailInput.addEventListener('input', checkFormValidity);
-  spinButton.addEventListener('click', handleSpin);
   fullscreenBtnLogic();
+  drawWheel();
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 });
