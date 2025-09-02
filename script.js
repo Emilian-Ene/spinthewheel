@@ -61,9 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
       emailSubject = `Thanks for playing – here’s your result!`;
       let dynamicResult = '';
       if (segment.type === 'winner') {
-        dynamicResult = `Winner – Claim your prize  of a Paragon notebook - ${segment.text}`;
+        dynamicResult = `Winner – Claim your prize  of a Paragon - ${segment.text}`;
       } else if (segment.type === 'lose') {
-        dynamicResult = `Consolation Prize – Hard luck this time – claim your consolation prize of a Paragon pen - ${segment.text}`;
+        dynamicResult = `Consolation Prize – Hard luck this time – claim your consolation prize of a Paragon - ${segment.text}`;
       }
       emailBody = `<div style="font-family: sans-serif; line-height: 1.6;"><p>Hi ${winnerName},</p><p>Thanks for stopping by the Paragon stand at Technology for Marketing and playing our Spin The Wheel game.</p><p><strong>Your result:</strong> ${dynamicResult}</p><p>${paragonIntro}</p><p>Want to find out how? <a href="https://uk.paragon.world/contact-us" target="_blank">Speak to our team</a>.</p><p>Thanks again for playing – enjoy your prize!</p><p>${paragonTeamSignature}</p></div>`;
     }
