@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 
   // --- Constants and Configuration ---
-  const STAR_PRIZE_SPIN_LIMIT = 20;
+  const STAR_PRIZE_SPIN_LIMIT = 2;
 
   // --- Element References ---
   const canvas = document.getElementById('spinWheelCanvas');
@@ -131,15 +131,15 @@ document.addEventListener('DOMContentLoaded', () => {
     isStarPrize: true,
   };
   let segments = [
-    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
-    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: '#006492' },
-    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
-    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: '#006492' },
-    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
-    { text: 'Retry', displayText: 'RETRY', type: 'retry', color: '#006492' },
-    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
-    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: '#006492' },
-    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#e51937' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
+    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: ' #004f71' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
+    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: ' #004f71' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
+    { text: 'Retry', displayText: 'RETRY', type: 'retry', color: ' #004f71' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
+    { text: 'Notebook', displayText: 'WIN', type: 'winner', color: ' #004f71' },
+    { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
     { text: 'Retry', displayText: 'RETRY', type: 'retry', color: '#006492' },
   ];
   segments.splice(4, 0, starPrize);
