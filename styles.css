@@ -129,6 +129,7 @@ canvas {
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
+  display: none; /* Add this line to hide the button */
 }
 #resetButton:hover {
   background-color: #e2e8f0;
@@ -316,7 +317,6 @@ canvas {
   border: none;
   cursor: pointer;
   padding: 0;
-  /* KEY CHANGE: Increased z-index to be on top of all modals */
   z-index: 35;
 }
 

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 
   // --- Constants and Configuration ---
-  const STAR_PRIZE_SPIN_LIMIT = 2;
+  const STAR_PRIZE_SPIN_LIMIT = 3;
 
   // --- Element References ---
   const canvas = document.getElementById('spinWheelCanvas');
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const questionForm = document.getElementById('questionForm');
 
   let userDetails = {};
-  let userChoice = '';
+  let userChoice = [];
 
   // --- Daily Prize & Spin Counter Logic ---
   const getTodayDateString = () => new Date().toISOString().split('T')[0];
@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
           spinButton.disabled = false;
           isSpinning = false;
         } else {
+          sendAdminNotification(userChoice);
           sendPlayerEmail(winningSegment);
           isSpinning = false;
           if (winningSegment.isStarPrize) {
@@ -304,7 +305,23 @@ document.addEventListener('DOMContentLoaded', () => {
     drawWheel();
   };
 
-  // LOGIC FOR QUESTION SUBMISSION
+  // Step 1: Details form is submitted
+  userDetailsForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const isNameValid = nameInput.value.trim() !== '';
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+    if (isNameValid && isEmailValid) {
+      // Store user details
+      userDetails = { name: nameInput.value, email: emailInput.value };
+      // Hide details form and show question form
+      formContainer.classList.add('hidden');
+      questionModal.classList.remove('hidden');
+    } else {
+      alert('Please enter a valid name and email address.');
+    }
+  });
+
+  // Step 2: Question form is submitted
   questionForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const selectedOptions = questionForm.querySelectorAll(
@@ -313,31 +330,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectedOptions.length > 0) {
       const choices = Array.from(selectedOptions).map((option) => option.value);
       userChoice = choices; // Store as an array
+      // Hide question form and enable the main spin button
       questionModal.classList.add('hidden');
-      formContainer.classList.remove('hidden');
+      spinButton.disabled = false;
     } else {
       alert('Please select at least one answer.');
     }
   });
 
-  // LOGIC FOR DETAILS FORM SUBMISSION
-  userDetailsForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const isNameValid = nameInput.value.trim() !== '';
-    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
-    if (isNameValid && isEmailValid) {
-      userDetails = { name: nameInput.value, email: emailInput.value };
-      formContainer.classList.add('hidden');
-      spinButton.disabled = false;
-    } else {
-      alert('Please enter a valid name and email address.');
-    }
-  });
-
-  // LOGIC FOR FINAL SPIN BUTTON
+  // Step 3: The main spin button is clicked
   spinButton.addEventListener('click', () => {
     if (isSpinning || spinButton.disabled) return;
-    sendAdminNotification(userChoice);
     handleSpin();
   });
 
@@ -347,6 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       resultModal.classList.add('hidden');
     }, 300);
+
+    // Reset all form fields
     const checkedBoxes = questionForm.querySelectorAll(
       'input[name="challenge"]:checked'
     );
@@ -354,7 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
     nameInput.value = '';
     emailInput.value = '';
 
-    questionModal.classList.remove('hidden');
+    // Reset to the beginning of the flow (the details form)
+    formContainer.classList.remove('hidden');
+
     messageBox.classList.add('hidden');
     spinButton.classList.remove('hidden');
     spinButton.disabled = true;
