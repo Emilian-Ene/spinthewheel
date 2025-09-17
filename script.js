@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     type: 'winner',
     color: '#FFD700',
     isStarPrize: true,
+    textColor: '#000000',
   };
   let segments = [
     { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
@@ -136,11 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
     { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
     { text: 'Notebook', displayText: 'WIN', type: 'winner', color: ' #004f71' },
     { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
-    { text: 'Retry', displayText: 'RETRY', type: 'retry', color: ' #004f71' },
+    { text: 'Retry', displayText: 'RETRY', type: 'retry', color: '#E54F6D' },
     { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
     { text: 'Notebook', displayText: 'WIN', type: 'winner', color: ' #004f71' },
     { text: 'Pen', displayText: 'LOSE', type: 'lose', color: '#be6a14' },
-    { text: 'Retry', displayText: 'RETRY', type: 'retry', color: '#006492' },
+    { text: 'Retry', displayText: 'RETRY', type: 'retry', color: '#E54F6D' },
   ];
   segments.splice(4, 0, starPrize);
   const numSegments = segments.length;
@@ -166,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.translate(radius, radius);
       ctx.rotate((startAngle + endAngle) / 2);
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = segment.textColor || '#ffffff';
       ctx.font = `bolder ${radius * 0.08}px sans-serif`;
       ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
       ctx.shadowOffsetX = 2;
@@ -186,7 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
     spinButton.disabled = true;
     spinButton.classList.add('hidden');
     messageBox.classList.remove('hidden');
-    messageBox.textContent = 'Spinning... Good luck!';
+    // KEY CHANGE: Updated the text as requested
+    messageBox.textContent = 'Spinning...good luck!';
     spinningSound.loop = true;
     spinningSound.play();
 
